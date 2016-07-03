@@ -156,17 +156,17 @@ class MinimaxAgent(MultiAgentSearchAgent):
         """
         "*** YOUR CODE HERE ***"
         level = self.depth * gameState.getNumAgents()
-        return (miniMaxHelper(self, gameState, self.index, level, None))[0]
+        return (miniMaxHelper(self, gameState, self.index, level, []))[0][0]
 
 
-def miniMaxHelper(self, gameState, agentIndex, level, action):
+def miniMaxHelper(self, gameState, agentIndex, level, actionList):
   numAgents = gameState.getNumAgents()
   legalActions = gameState.getLegalActions(agentIndex)
 
   if level ==0 or gameState.isWin() or gameState.isLose():
-    return (action, self.evaluationFunction(gameState))
-  actions = [miniMaxHelper(self, gameState.generateSuccessor(agentIndex, action), (agentIndex +1) % numAgents, level -1, action) for action in legalActions]
-  actions.sort(lambda x, y: 1 if x[1] < y[1] else -1)
+    return (actionList, self.evaluationFunction(gameState))
+  actions = [miniMaxHelper(self, gameState.generateSuccessor(agentIndex, action), (agentIndex +1) % numAgents, level -1, actionList+ [action]) for action in legalActions]
+  actions.sort(lambda x, y: 1 if x[1] > y[1] else -1)
   if agentIndex == 0:
     return actions[-1]
   else:
