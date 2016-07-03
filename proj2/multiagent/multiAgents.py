@@ -159,18 +159,27 @@ class MinimaxAgent(MultiAgentSearchAgent):
         return (miniMaxHelper(self, gameState, self.index, level, []))[0][0]
 
 
-def miniMaxHelper(self, gameState, agentIndex, level, actionList):
+def miniMaxHelper(self, gameState, agentIndex, level, actionList, exp=False):
   numAgents = gameState.getNumAgents()
   legalActions = gameState.getLegalActions(agentIndex)
 
   if level ==0 or gameState.isWin() or gameState.isLose():
     return (actionList, self.evaluationFunction(gameState))
-  actions = [miniMaxHelper(self, gameState.generateSuccessor(agentIndex, action), (agentIndex +1) % numAgents, level -1, actionList+ [action]) for action in legalActions]
+  if exp:
+    actions = [miniMaxHelper(self, gameState.generateSuccessor(agentIndex, action), (agentIndex +1) % numAgents, level -1, actionList+ [action], True) for action in legalActions]
+  else:
+    actions = [miniMaxHelper(self, gameState.generateSuccessor(agentIndex, action), (agentIndex +1) % numAgents, level -1, actionList+ [action]) for action in legalActions]
+  copy_of_actions = actions[:]
   actions.sort(lambda x, y: 1 if x[1] > y[1] else -1)
   if agentIndex == 0:
     return actions[-1]
-  else:
+  elif not exp:
     return actions[0]
+  else:
+    newActions = [t[1] for t in actions]
+    average = float(sum(newActions))/float(len(newActions))
+    return (actionList, average)
+
 
 
 
@@ -237,7 +246,9 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
           legal moves.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        level = self.depth * gameState.getNumAgents()
+        return (miniMaxHelper(self, gameState, self.index, level, [], True))[0][0]
+
 
 def betterEvaluationFunction(currentGameState):
     """
