@@ -73,7 +73,6 @@ class ReflexAgent(Agent):
         newFood = successorGameState.getFood().asList()
         newGhostPositions = successorGameState.getGhostPositions()
         newGhostStates = successorGameState.getGhostStates()
-        newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
         "*** YOUR CODE HERE ***"
         ghostDistances = [util.manhattanDistance(newPos, ghostPos) for ghostPos in newGhostPositions]
         foodDistances = [util.manhattanDistance(newPos, foodPos) for foodPos in newFood]
@@ -258,7 +257,58 @@ def betterEvaluationFunction(currentGameState):
       DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+  
+    newPos = currentGameState.getPacmanPosition()
+    newFood = currentGameState.getFood().asList()
+    newGhostPositions = currentGameState.getGhostPositions()
+    newGhostStates = currentGameState.getGhostStates()
+    newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
+    "*** YOUR CODE HERE ***"
+    ghostDistances = [util.manhattanDistance(newPos, ghostPos) for ghostPos in newGhostPositions]
+    foodDistances = [util.manhattanDistance(newPos, foodPos) for foodPos in newFood]
+    ghostScore = min(ghostDistances) * 100
+    if min(newScaredTimes) >= 3:
+      ghostScore = 1000
+  
+    if min(ghostDistances) == 0:
+      return -9999
+    elif min(ghostDistances) == 1:
+      return -500
+    elif min(ghostDistances) == 2:
+      return  0
+    foodScore = 0
+    if foodDistances != []:
+      minFood = min(foodDistances)
+      foodScore = minFood * -.5
+    else:
+      foodScore = 0
+
+    capsules = currentGameState.getCapsules()
+    if newPos in capsules:
+      foodScore +=5000 
+
+    if currentGameState.hasFood(newPos[0], newPos[1]):
+      foodScore += 2000
+
+    return foodScore + ghostScore + currentGameState.getScore()
+
+  
+    
+
+    # score += 20/(len(currentGameState.getFood().asList()))
+
+    # minGhostDist = 
+    
+    # return score + currentGameState.getScore()
+
+
+
+
+
+
+
+
+
 
 # Abbreviation
 better = betterEvaluationFunction
