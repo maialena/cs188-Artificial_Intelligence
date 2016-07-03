@@ -187,7 +187,42 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
           Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        level = self.depth * gameState.getNumAgents()
+        return alphaBetaHelper(self, gameState, self.index, level, [], float("-inf"), float("inf"))[0][0]
+
+def alphaBetaHelper(self, gameState, agentIndex, level, actionList, alpha, beta):
+  if level == 0 or gameState.isWin() or gameState.isLose():
+    return (actionList, self.evaluationFunction(gameState))
+  
+  else:
+    legalActions = gameState.getLegalActions(agentIndex)
+    if agentIndex==0: #maximizer
+      v = float("-inf")
+      for action in legalActions:
+        result = alphaBetaHelper(self, gameState.generateSuccessor(agentIndex, action), (agentIndex + 1) % gameState.getNumAgents(), level-1, actionList + [action], alpha, beta)
+        if result[1] > v:
+            v = result[1]
+            bestAction = action
+        if v > beta: #pruning
+          return (actionList + [action], v)
+        else:
+          alpha = max(alpha, v)
+      return (actionList + [bestAction], v)
+    else: #minizer
+      v = float("inf")
+      for action in legalActions:
+        result = alphaBetaHelper(self, gameState.generateSuccessor(agentIndex, action), (agentIndex + 1) % gameState.getNumAgents(), level-1, actionList + [action], alpha, beta)
+        if result[1] < v:
+            v = result[1]
+            bestAction = action
+        if v < alpha:
+          return (actionList + [action], v)
+        else:
+          beta = min(beta, v)
+      return (actionList + [bestAction], v)
+
+
+
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
