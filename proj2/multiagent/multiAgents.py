@@ -266,9 +266,9 @@ def betterEvaluationFunction(currentGameState):
     "*** YOUR CODE HERE ***"
     ghostDistances = [util.manhattanDistance(newPos, ghostPos) for ghostPos in newGhostPositions]
     foodDistances = [util.manhattanDistance(newPos, foodPos) for foodPos in newFood]
-    ghostScore = min(ghostDistances) * 100
-    if min(newScaredTimes) >= 3:
-      ghostScore = 1000
+    # ghostScore = min(ghostDistances) * 100
+    # if min(newScaredTimes) >= 3:
+    #   ghostScore = 1000
   
     if min(ghostDistances) == 0:
       return -9999
@@ -279,18 +279,19 @@ def betterEvaluationFunction(currentGameState):
     foodScore = 0
     if foodDistances != []:
       minFood = min(foodDistances)
-      foodScore = minFood * -.5
+      foodScore = minFood * -3
+      foodScore += len(foodDistances) * -1
     else:
       foodScore = 0
 
-    capsules = currentGameState.getCapsules()
-    if newPos in capsules:
-      foodScore +=5000 
+    # capsules = currentGameState.getCapsules()
+    # if newPos in capsules:
+    #   foodScore +=5000 
 
-    if currentGameState.hasFood(newPos[0], newPos[1]):
-      foodScore += 2000
+    # if currentGameState.hasFood(newPos[0], newPos[1]):
+    #   foodScore += 2000
 
-    return foodScore + ghostScore + currentGameState.getScore()
+    return foodScore + currentGameState.getScore()
 
   
     
