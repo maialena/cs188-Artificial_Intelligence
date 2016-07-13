@@ -59,9 +59,36 @@ class ValueIterationAgent(ValueEstimationAgent):
         self.values = util.Counter() # A Counter is a dict with default 0
         self.runValueIteration()
 
+    def computeActionQvaluePair(self, state):
+      """ This returns a tuple of the best action from current state and corresponding qvalue, like so: (action, qvalue).
+        This is called by computeActionFromValues to get the best action and runValueIteration to get the best Q-value for a given state"""
+      best_q = -float("inf")
+      best_action = ''
+      qlist = [(self.computeQValueFromValues(state, action), action) for action in self.mdp.getPossibleActions(state)]
+      if len(qlist) == 0:
+        return None
+      for qvalue, action in qlist:
+        if qvalue > best_q:
+          best_action = action
+          best_q = qvalue
+      return (best_action, best_q)
+
     def runValueIteration(self):
         # Write value iteration code here
         "*** YOUR CODE HERE ***"
+        
+        count = self.iterations
+        
+        while count > 0:
+          valueCopy = self.values.copy()
+          for state in self.mdp.getStates():
+            qvalue_pair = self.computeActionQvaluePair(state)
+            if qvalue_pair == None:
+              continue
+            best_qvalue = qvalue_pair[1]
+            valueCopy[state] = best_qvalue
+          self.values = valueCopy
+          count -=1
 
 
     def getValue(self, state):
@@ -77,7 +104,14 @@ class ValueIterationAgent(ValueEstimationAgent):
           value function stored in self.values.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        qvalue = 0
+        successors = self.mdp.getTransitionStatesAndProbs(state, action)
+        for nextState, prob in successors:
+          reward = self.mdp.getReward(state, action, nextState)
+          qvalue += prob*(reward + self.discount*self.getValue(nextState))
+        return qvalue
+
+        
 
     def computeActionFromValues(self, state):
         """
@@ -89,7 +123,13 @@ class ValueIterationAgent(ValueEstimationAgent):
           terminal state, you should return None.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        best_action_q_pair = self.computeActionQvaluePair(state)
+        if best_action_q_pair == None:
+          return None
+        return best_action_q_pair[0]
+
+    
+
 
     def getPolicy(self, state):
         return self.computeActionFromValues(state)
