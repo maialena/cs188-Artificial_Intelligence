@@ -26,7 +26,7 @@
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
 
 
-import mdp, util
+import mdp, util, math
 
 from learningAgents import ValueEstimationAgent
 import collections
@@ -170,6 +170,23 @@ class AsynchronousValueIterationAgent(ValueIterationAgent):
 
     def runValueIteration(self):
         "*** YOUR CODE HERE ***"
+        count = self.iterations
+        states = self.mdp.getStates()
+        numRotations = max(1, int(math.ceil(self.iterations/len(states))))
+        # numRotations = 0
+        states = states * numRotations
+        for state in states:
+            if count == 0:
+                return
+            qvalue_pair = self.computeActionQvaluePair(state)
+            if qvalue_pair == None:
+                continue
+            best_qvalue = qvalue_pair[1]
+            self.values[state] = best_qvalue
+            count -= 1
+        
+
+          
 
 class PrioritizedSweepingValueIterationAgent(AsynchronousValueIterationAgent):
     """
