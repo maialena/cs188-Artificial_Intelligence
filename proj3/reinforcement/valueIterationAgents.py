@@ -172,14 +172,14 @@ class AsynchronousValueIterationAgent(ValueIterationAgent):
         "*** YOUR CODE HERE ***"
         count = self.iterations
         states = self.mdp.getStates()
-        numRotations = max(1, int(math.ceil(self.iterations/len(states))))
-        # numRotations = 0
+        numRotations = max(1, int(self.iterations/len(states) + 1))
         states = states * numRotations
         for state in states:
             if count == 0:
                 return
             qvalue_pair = self.computeActionQvaluePair(state)
             if qvalue_pair == None:
+                count-=1
                 continue
             best_qvalue = qvalue_pair[1]
             self.values[state] = best_qvalue
@@ -204,7 +204,48 @@ class PrioritizedSweepingValueIterationAgent(AsynchronousValueIterationAgent):
         """
         self.theta = theta
         ValueIterationAgent.__init__(self, mdp, discount, iterations)
+        #creating dictionary of predecessors for each state
+        
 
     def runValueIteration(self):
         "*** YOUR CODE HERE ***"
+        pred = {}
+        states = self.mdp.getStates()
+        for state in states:
+          pred[state] = set()
+        for state in states:
+          actions = self.mdp.getPossibleActions(state)
+          for action in actions:
+            tuples = self.mdp.getTransitionStatesAndProbs(state,action)
+            for nextState, prob in tuples:
+              pred[nextState].add(state)
+
+        queue = util.PriorityQueue()
+        for s in states:
+          if self.mdp.isTerminal(s):
+            continue
+          diff = abs(self.values[s] - self.computeActionQvaluePair(s)[1])
+          queue.push(s, -diff)
+        count = self.iterations
+        
+        while count > 0:
+          valuesCopy = self.values.copy()
+          if queue.isEmpty():
+            return
+          s = queue.pop()
+          if not self.mdp.isTerminal(s):
+            qvalue_pair = self.computeActionQvaluePair(s)
+            best_qvalue = qvalue_pair[1]
+            valuesCopy[s] = best_qvalue
+          for p in pred[s]:
+            diff = abs(valuesCopy[p] - self.computeActionQvaluePair(p)[1])
+            if diff > self.theta:
+              queue.update(p, -diff)
+          self.values = valuesCopy
+          count -=1
+
+
+
+
+
 
