@@ -229,19 +229,19 @@ class PrioritizedSweepingValueIterationAgent(AsynchronousValueIterationAgent):
         count = self.iterations
         
         while count > 0:
-          valuesCopy = self.values.copy()
+          # valuesCopy = self.values.copy()
           if queue.isEmpty():
             return
           s = queue.pop()
           if not self.mdp.isTerminal(s):
             qvalue_pair = self.computeActionQvaluePair(s)
             best_qvalue = qvalue_pair[1]
-            valuesCopy[s] = best_qvalue
+            self.values[s] = best_qvalue
           for p in pred[s]:
-            diff = abs(valuesCopy[p] - self.computeActionQvaluePair(p)[1])
+            diff = abs(self.values[p] - self.computeActionQvaluePair(p)[1])
             if diff > self.theta:
               queue.update(p, -diff)
-          self.values = valuesCopy
+          # self.values = valuesCopy
           count -=1
 
 
