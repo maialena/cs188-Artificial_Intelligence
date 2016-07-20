@@ -107,13 +107,11 @@ def joinFactors(factors):
         for elem in unCon:
             unConSet.add(elem)
     conSet = set()
-    for con in setsOfUnconditioned:
+    for con in setsOfConditioned:
         for elem in con:
-            unCon.add(elem)
+            if elem not in unConSet:
+                conSet.add(elem)
 
-    for elem in conSet:
-        if elem in unConSet:
-            conSet.remove(elem)
     joinFactor = Factor(unConSet, conSet, factors[0].variableDomainsDict())
     newAssignments = joinFactor.getAllPossibleAssignmentDicts();
     for assignment in newAssignments:
