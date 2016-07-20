@@ -89,6 +89,7 @@ def joinFactors(factors):
 
     # typecheck portion
     setsOfUnconditioned = [set(factor.unconditionedVariables()) for factor in factors]
+    setsOfConditioned = [set(factor.conditionedVariables()) for factor in factors]
     if len(factors) > 1:
         intersect = reduce(lambda x, y: x & y, setsOfUnconditioned)
         if len(intersect) > 0:
@@ -101,7 +102,26 @@ def joinFactors(factors):
 
 
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    unConSet = set()
+    for unCon in setsOfUnconditioned:
+        for elem in unCon:
+            unConSet.add(elem)
+    conSet = set()
+    for con in setsOfUnconditioned:
+        for elem in con:
+            unCon.add(elem)
+
+    for elem in conSet:
+        if elem in unConSet:
+            conSet.remove(elem)
+    joinFactor = Factor(unConSet, conSet, factors[0].variableDomainsDict())
+    newAssignments = joinFactor.getAllPossibleAssignmentDicts();
+    for assignment in newAssignments:
+        product = 1
+        for factor in factors:
+            product *= factor.getProbability(assignment)
+        joinFactor.setProbability(assignment, product)
+    return joinFactor
 
 
 def eliminateWithCallTracking(callTrackingList=None):
@@ -173,7 +193,7 @@ def normalize(factor):
     with single value domains, but that is alright since we have to assign 
     variables that only have one value in their domain to that single value.
 
-    Return a new factor where the sum of the all the probabilities in the table is 1.
+    Return a new factor where the sum of all the probabilities in the table is 1.
     This should be a new factor, not a modification of this factor in place.
 
     If the sum of probabilities in the input factor is 0,
