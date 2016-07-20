@@ -207,6 +207,7 @@ def fillObsCPT(bayesNet, gameState):
 
     bottomLeftPos, topLeftPos, bottomRightPos, topRightPos = gameState.getPossibleHouses()
     "*** YOUR CODE HERE ***"
+    NEW_VALS = [BOTTOM_LEFT_VAL, TOP_LEFT_VAL, BOTTOM_RIGHT_VAL, TOP_RIGHT_VAL]
     #make a list of all possible (wall color, ghostHousePos, foodHousePos)
     tupleList = []
     # for ghostHouse in gameState.getPossibleHouses():
@@ -216,25 +217,26 @@ def fillObsCPT(bayesNet, gameState):
     
     #now will fill in factors
     obsFactors = []
-    for housePos in gameState.getPossibleHouses():
+    for housePos, houseVal in zip(gameState.getPossibleHouses(), NEW_VALS):
         for obsPos in gameState.getHouseWalls(housePos):
             obsVar = OBS_VAR_TEMPLATE % obsPos
             obsFactor = bn.Factor([obsVar], ['ghostHouse', 'foodHouse'], bayesNet.variableDomainsDict())
             valueDict = obsFactor.getAllPossibleAssignmentDicts()
             for assignment in valueDict:
-                correctFoodPos = assignment[FOOD_HOUSE_VAR] == housePos
-                correctGhostPos = assignment[GHOST_HOUSE_VAR] == housePos
+                correctFoodPos = assignment[FOOD_HOUSE_VAR] == houseVal
+                correctGhostPos = assignment[GHOST_HOUSE_VAR] == houseVal
+                both = correctFoodPos and correctGhostPos
                 color = assignment[obsVar]
-                if (color == RED_OBS_VAL) and correctGhostPos:
-                    obsFactor.setProbability(asignment, PROB_GHOST_RED)
-                elif (color == RED_OBS_VAL) and correctFoodPos:
+                if (color == RED_OBS_VAL) and (correctFoodPos or both):
                     obsFactor.setProbability(assignment, PROB_FOOD_RED)
-                elif (color == BLUE_OBS_VAL) and correctGhostPos:
-                    obsFactor.setProbability(asignment, 1 - PROB_GHOST_RED)
-                elif (color == BLUE_OBS_VAL) and correctFoodPos:
+                elif (color == RED_OBS_VAL) and correctGhostPos:
+                    obsFactor.setProbability(assignment, PROB_GHOST_RED)
+                elif (color == BLUE_OBS_VAL) and (correctFoodPos or both):
                     obsFactor.setProbability(assignment, 1 - PROB_FOOD_RED)
+                elif (color == BLUE_OBS_VAL) and correctGhostPos:
+                    obsFactor.setProbability(assignment, 1 - PROB_GHOST_RED)
                 elif (color == NO_OBS_VAL) and correctGhostPos or correctFoodPos:
-                    obsFactor.setProbability(asignment, 0)
+                    obsFactor.setProbability(assignment, 0)
                 elif (color == NO_OBS_VAL) and not (correctGhostPos or correctFoodPos):
                     obsFactor.setProbability(assignment, 1)
                 else:
