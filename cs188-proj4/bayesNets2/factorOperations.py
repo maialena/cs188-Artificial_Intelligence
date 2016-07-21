@@ -168,8 +168,21 @@ def eliminateWithCallTracking(callTrackingList=None):
                     "unconditionedVariables: " + str(factor.unconditionedVariables()))
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
-
+        unCondVar = factor.unconditionedVariables()
+        condVar = factor.conditionedVariables()
+        unCondVar.remove(eliminationVariable)
+        elimFactor = Factor(unCondVar, condVar, factor.variableDomainsDict()) 
+        newAssignments = elimFactor.getAllPossibleAssignmentDicts() #this probability table will be smaller since 1 less variable (newAss = rows we will fill in)
+        for assignment in newAssignments:
+            total = 0
+            oldAssignments = factor.getAllPossibleAssignmentDicts() #old rows of table before eliminate
+            for oldAss in oldAssignments:
+                oldProb = factor.getProbability(oldAss)
+                oldAss.pop(eliminationVariable)
+                if oldAss == assignment:
+                    total += oldProb
+            elimFactor.setProbability(assignment, total)
+        return elimFactor
     return eliminate
 
 eliminate = eliminateWithCallTracking()
@@ -223,5 +236,44 @@ def normalize(factor):
                             str(factor))
 
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    #will update conditioned and unconditioned variables; if unconditioned has one elem --> treat as conditioned
+    newConditioned = factor.conditionedVariables()
+    newUnconditioned = factor.unconditionedVariables()
+    assignments = factor.getAllPossibleAssignmentDicts()
+    #sum probabilities to normalize
+    total = sum([factor.getProbability(assignment) for assignment in assignments])
+    if total == 0:
+        return None
+    #keep track of unCond variables with only 1 elem in domain
+    domainSets = {}
+    unconditioned= factor.unconditionedVariables();
+    for uncondVar in unconditioned:
+        domainSets[uncondVar] = set()
+    for assignment in assignments:
+        assignmentProb = factor.getProbability(assignment)
+        #if assignment has a non-zero probability, we add the uncondVar's domain to a set
+        if assignmentProb !=0:
+            for elem in assignment:
+                if elem in factor.unconditionedVariables():
+                    domainSets[elem].add(assignment[elem])
+    #if unconditioned variables have only 1 elem in domain, make them conditioned variables, remove from oldUnconditioned
+    for var in domainSets:
+        #edge case: only one unconditioned variable, don't want to remove
+        if len(domainSets[var]) == 1 and len(newUnconditioned) > 1: 
+            newUnconditioned.remove(var)
+            newConditioned.add(var)
+
+    #make new factor
+    newFactor = Factor(newUnconditioned, newConditioned, factor.variableDomainsDict())
+    #set factor probabilities
+    for assignment in assignments:
+        newFactor.setProbability(assignment, factor.getProbability(assignment)/total)
+    
+    return newFactor
+
+
+
+
+        
+
 
