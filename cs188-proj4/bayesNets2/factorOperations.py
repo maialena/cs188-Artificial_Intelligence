@@ -107,13 +107,11 @@ def joinFactors(factors):
         for elem in unCon:
             unConSet.add(elem)
     conSet = set()
-    for con in setsOfUnconditioned:
-        for elem in con:
-            unCon.add(elem)
+    for con in setsOfConditioned:
+        for elem in con: 
+            if elem not in unConSet:
+                conSet.add(elem)
 
-    for elem in conSet:
-        if elem in unConSet:
-            conSet.remove(elem)
     joinFactor = Factor(unConSet, conSet, factors[0].variableDomainsDict())
     newAssignments = joinFactor.getAllPossibleAssignmentDicts();
     for assignment in newAssignments:
@@ -170,8 +168,21 @@ def eliminateWithCallTracking(callTrackingList=None):
                     "unconditionedVariables: " + str(factor.unconditionedVariables()))
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
-
+        con = factor.conditionedVariables()
+        unCon = factor.unconditionedVariables()
+        unCon.remove(eliminationVariable)
+        elimFactor = Factor(unCon, con, factor.variableDomainsDict())
+        newAssignments = elimFactor.getAllPossibleAssignmentDicts()
+        for assignment in newAssignments:
+            total = 0
+            assignments = factor.getAllPossibleAssignmentDicts()
+            for oldAss in assignments:
+                oldProb = factor.getProbability(oldAss)
+                oldAss.pop(eliminationVariable)
+                if oldAss == assignment:
+                    total += oldProb
+            elimFactor.setProbability(assignment, total)
+        return elimFactor
     return eliminate
 
 eliminate = eliminateWithCallTracking()
