@@ -246,12 +246,6 @@ def fillObsCPT(bayesNet, gameState):
 
 
 
-
-
-
-
-
-
 def getMostLikelyFoodHousePosition(evidence, bayesNet, eliminationOrder):
     """
     Question 7: Marginal inference for pacman
@@ -265,8 +259,15 @@ def getMostLikelyFoodHousePosition(evidence, bayesNet, eliminationOrder):
     (This should be a very short method.)
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
-
+    factor = inference.inferenceByVariableElimination(bayesNet, FOOD_HOUSE_VAR, evidence, eliminationOrder)
+    allAssignmentprobs = [(factor.getProbability(assignment), assignment) for assignment in factor.getAllPossibleAssignmentDicts()]
+    best = 0
+    bestAss = {}
+    for prob, ass in allAssignmentprobs:
+        if prob >= best:
+            best = prob
+            bestAss = ass 
+    return bestAss
 
 class BayesAgent(game.Agent):
 
@@ -367,8 +368,15 @@ class VPIAgent(BayesAgent):
         rightExpectedValue = 0
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
-
+        inferFactor = inerence.inferenceByVariableElimination(self.bayesNet, HOUSE_VARS, evidence, eliminationOrder)
+        for assignment in inferFactor.getAllPossibleAssignmentDicts():
+            if assignment[FOOD_HOUSE_VAR] = TOP_LEFT_VAL and assignment[GHOST_HOUSE_VAR] = TOP_RIGHT_VAL:
+                leftExpectedValue += inferFactor.getProbability(assignment) * FOOD_REWARD
+                rightExpectedValue += inferFactor.getProbability(assignment) * GHOST_REWARD 
+            if assignment[FOOD_HOUSE_VAR] = TOP_RIGHT_VAL and assignment[GHOST_HOUSE_VAR] = TOP_LEFT_VAL:
+                leftExpectedValue += inferFactor.getProbability(assignment) * GHOST_REWARD 
+                rightExpectedValue += inferFactor.getProbability(assignment) * FOOD_REWARD
+        
         return leftExpectedValue, rightExpectedValue
 
     def getExplorationProbsAndOutcomes(self, evidence):
