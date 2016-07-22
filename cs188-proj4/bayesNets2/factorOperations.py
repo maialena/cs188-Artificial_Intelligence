@@ -240,29 +240,16 @@ def normalize(factor):
     newConditioned = factor.conditionedVariables()
     newUnconditioned = factor.unconditionedVariables()
     assignments = factor.getAllPossibleAssignmentDicts()
+    domains = factor.variableDomainsDict()
     #sum probabilities to normalize
     total = sum([factor.getProbability(assignment) for assignment in assignments])
     if total == 0:
         return None
     #keep track of unCond variables with only 1 elem in domain
-    domainSets = {}
-    unconditioned= factor.unconditionedVariables();
-    for uncondVar in unconditioned:
-        domainSets[uncondVar] = set()
-    for assignment in assignments:
-        assignmentProb = factor.getProbability(assignment)
-        #if assignment has a non-zero probability, we add the uncondVar's domain to a set
-        if assignmentProb !=0:
-            for elem in assignment:
-                if elem in factor.unconditionedVariables():
-                    domainSets[elem].add(assignment[elem])
-    #if unconditioned variables have only 1 elem in domain, make them conditioned variables, remove from oldUnconditioned
-    for var in domainSets:
-        #edge case: only one unconditioned variable, don't want to remove
-        if len(domainSets[var]) == 1 and len(newUnconditioned) > 1: 
-            newUnconditioned.remove(var)
-            newConditioned.add(var)
-
+    for elem in factor.unconditionedVariables():
+        if len(domains[elem]) == 1:
+            newUnconditioned.remove(elem)
+            newConditioned.add(elem)
     #make new factor
     newFactor = Factor(newUnconditioned, newConditioned, factor.variableDomainsDict())
     #set factor probabilities
