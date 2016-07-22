@@ -368,15 +368,14 @@ class VPIAgent(BayesAgent):
         rightExpectedValue = 0
 
         "*** YOUR CODE HERE ***"
-        inferFactor = inerence.inferenceByVariableElimination(self.bayesNet, HOUSE_VARS, evidence, eliminationOrder)
+        inferFactor = inference.inferenceByVariableElimination(self.bayesNet, HOUSE_VARS, evidence, eliminationOrder)
         for assignment in inferFactor.getAllPossibleAssignmentDicts():
-            if assignment[FOOD_HOUSE_VAR] = TOP_LEFT_VAL and assignment[GHOST_HOUSE_VAR] = TOP_RIGHT_VAL:
-                leftExpectedValue += inferFactor.getProbability(assignment) * FOOD_REWARD
-                rightExpectedValue += inferFactor.getProbability(assignment) * GHOST_REWARD 
-            if assignment[FOOD_HOUSE_VAR] = TOP_RIGHT_VAL and assignment[GHOST_HOUSE_VAR] = TOP_LEFT_VAL:
-                leftExpectedValue += inferFactor.getProbability(assignment) * GHOST_REWARD 
-                rightExpectedValue += inferFactor.getProbability(assignment) * FOOD_REWARD
-        
+            if assignment[FOOD_HOUSE_VAR] == TOP_LEFT_VAL and assignment[GHOST_HOUSE_VAR] == TOP_RIGHT_VAL:
+                leftExpectedValue += inferFactor.getProbability(assignment) * WON_GAME_REWARD
+                rightExpectedValue += inferFactor.getProbability(assignment) * GHOST_COLLISION_REWARD
+            if assignment[FOOD_HOUSE_VAR] == TOP_RIGHT_VAL and assignment[GHOST_HOUSE_VAR] == TOP_LEFT_VAL:
+                leftExpectedValue += inferFactor.getProbability(assignment)  * GHOST_COLLISION_REWARD
+                rightExpectedValue += inferFactor.getProbability(assignment) * WON_GAME_REWARD  
         return leftExpectedValue, rightExpectedValue
 
     def getExplorationProbsAndOutcomes(self, evidence):
@@ -438,12 +437,12 @@ class VPIAgent(BayesAgent):
         determine the expected value of acting with this extra evidence.
         """
 
-        expectedValue = 0
-
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
-
-        return expectedValue
+        possOutcomes = self.getExplorationProbsAndOutcomes(evidence)
+        expVal = 0
+        for prob, explorationEvidence in possOutcomes:
+            expVal += prob * max(self.computeEnterValues(explorationEvidence, enterEliminationOrder))
+        return expVal
 
     def getAction(self, gameState):
 
