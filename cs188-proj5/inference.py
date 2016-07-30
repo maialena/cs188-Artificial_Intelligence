@@ -78,6 +78,8 @@ class DiscreteDistribution(dict):
         if self == {}:
             return
         total = self.total()
+        if total == 0:
+            total = 1
         for item in self:
             self[item] = self[item] / total;
 
@@ -311,6 +313,9 @@ class ExactInference(InferenceModule):
         position is known.
         """
         "*** YOUR CODE HERE ***"
+        for p in self.allPositions:
+            self.beliefs[p] *= self.getObservationProb(observation, gameState.getPacmanPosition(), p, self.getJailPosition())
+        
         self.beliefs.normalize()
 
     def elapseTime(self, gameState):
@@ -323,6 +328,25 @@ class ExactInference(InferenceModule):
         current position is known.
         """
         "*** YOUR CODE HERE ***"
+        # for p in self.allPositions: 
+        #     total = 0      
+        #     for gPos in self.allPositions:
+        #         if manhattanDistance(p, gPos) <= 1 or p == self.getJailPosition() or gPos == self.getJailPosition():
+        #             total += self.getPositionDistribution(gameState, gPos)[p]
+        #     self.beliefs[p] *= total
+        
+        weightDict = DiscreteDistribution()
+        for p in self.allPositions:
+            weightDict[p] = 0
+        for p in self.allPositions:
+            dis = self.getPositionDistribution(gameState, p)
+            for pos in self.allPositions:
+                weightDict[pos] += dis[pos]
+        for p in self.allPositions:
+            self.beliefs[p] *= weightDict[p]
+
+
+        self.beliefs.normalize()
 
     def getBeliefDistribution(self):
         return self.beliefs
