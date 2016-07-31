@@ -337,14 +337,10 @@ class ExactInference(InferenceModule):
         
         weightDict = DiscreteDistribution()
         for p in self.allPositions:
-            weightDict[p] = 0
-        for p in self.allPositions:
             dis = self.getPositionDistribution(gameState, p)
-            for pos in self.allPositions:
-                weightDict[pos] += dis[pos]
-        for p in self.allPositions:
-            self.beliefs[p] *= weightDict[p]
-
+            for pos in dis.keys():
+                weightDict[pos] += dis[pos] * self.beliefs[p]
+        self.beliefs = weightDict
 
         self.beliefs.normalize()
 
