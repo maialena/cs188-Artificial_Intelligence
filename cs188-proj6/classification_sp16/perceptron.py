@@ -17,6 +17,7 @@ import util
 import numpy as np
 import models
 import solvers
+import operator
 PRINT = True
 
 
@@ -47,8 +48,8 @@ class PerceptronClassifier(object):
         Question 1: Implement the multi-class version of the perceptron algorithm
 
         Args:
-            input_train_data: list of util.Counters
-            label_train_data: list of integers (representing the labels) of the same length as input_train_data
+            input_train_data: list of util.Counters -- training points, a list of features
+            label_train_data: list of integers (representing the labels) of the same length as input_train_data -- list of labels corresponding to how input_train_data should be
             input_val_data: list of util.Counters
             label_val_data: list of integers (representing the labels) of the same length as input_val_data
             iterations: number of iterations to pass over all the dataset
@@ -80,8 +81,12 @@ class PerceptronClassifier(object):
                 if callback is not None: callback()
 
                 "*** YOUR CODE HERE ***"
-                util.raiseNotDefined()
-
+                rightLabel = label_train_data[i]
+                actualLabel = self.classify(input_train_data[i])
+                if actualLabel !=rightLabel:
+                    self.weights[rightLabel] += input_train_data[i]
+                    self.weights[actualLabel]-= input_train_data[i] 
+                
     def classify(self, input_datum_or_data):
         """
         Classifies a datum or each datum in a list of data.
@@ -120,10 +125,11 @@ class PerceptronClassifier(object):
         Returns a list of the 100 features with the greatest weight for some label
         """
         best100Features = []
-
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
-
+        featureWeights = self.weights[label]
+        sortedLabels = sorted(featureWeights.items(), key=operator.itemgetter(1)) #convert dict to tuples, sort by value
+        for i in range(100):
+            best100Features.append(sortedLabels[i][0])
         return best100Features
 
 
