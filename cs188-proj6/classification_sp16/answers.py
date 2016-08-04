@@ -17,10 +17,11 @@ import util
 
 def q2():
     "*** YOUR CODE HERE ***"
+    return 'b'
 
 def q3():
     "*** YOUR CODE HERE ***"
-
+    return 'a'
 def q7():
     "*** YOUR CODE HERE ***"
 
