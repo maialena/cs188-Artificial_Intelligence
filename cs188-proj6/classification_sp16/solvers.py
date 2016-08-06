@@ -83,7 +83,9 @@ class GradientDescentSolver(Solver):
         grad_tensors = tf.gradients(loss_tensor, param_vars)
         updates = []
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        for i in range(len(grad_tensors)):
+            update = param_vars[i] - self.learning_rate*grad_tensors[i]
+            updates.append((param_vars[i], update))
         return updates
 
     def get_updates_with_momentum(self, loss_tensor, param_vars):
@@ -103,12 +105,16 @@ class GradientDescentSolver(Solver):
         variables (both provided below), and the member variables
         self.learning_rate and self.momentum.
         """
-        grad_tensors = tf.gradients(loss_tensor, param_vars)
-        vel_vars = [tf.Variable(np.zeros(param_var.get_shape(), dtype=np.float32)) for param_var in param_vars]
+        grad_tensors = tf.gradients(loss_tensor, param_vars) #returns the gradient for each parameter variable
+        vel_vars = [tf.Variable(np.zeros(param_var.get_shape(), dtype=np.float32)) for param_var in param_vars] #corresponds to the velocity for each variable
         tfu.get_session().run([vel_var.initializer for vel_var in vel_vars])
         updates = []
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        for i in range(len(vel_vars)):
+            new_vel = vel_vars[i]*self.momentum - self.learning_rate * grad_tensors[i]
+            updates.append((vel_vars[i], new_vel))
+            new_weight = param_vars[i] + new_vel
+            updates.append((param_vars[i], new_weight))
         return updates
 
     def get_loss_tensor(self, prediction_tensor, target_ph, param_vars):
