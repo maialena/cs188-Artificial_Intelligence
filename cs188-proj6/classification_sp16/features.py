@@ -52,7 +52,17 @@ def enhancedFeatureExtractor(datum):
     features = basicFeatureExtractor(datum)
 
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    strikethroughFeature = [0, 0]
+    for row in  datum:
+        seenNumber = 0 #0 means haven't seen any black, 1 menas in continuous black, 2 means transitino from black to white
+        for elem in row:
+            if seenNumber == 2 and elem != 0:
+                strikethroughFeature[1] = 1
+                break
+            if seenNumber == 1 and elem == 0:
+                seenNumber = 2
+            if seenNumber == 0 and elem != 0:
+                seenNumber = 1
 
     return features
 
