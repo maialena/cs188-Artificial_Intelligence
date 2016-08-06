@@ -66,9 +66,9 @@ def search_hyperparams(train_data, train_labels, val_data, val_labels,
     for model, (learning_rate, momentum, batch_size) in zip(models, hyperparams):
         "*** YOUR CODE HERE ***" 
         solver = solvers.MinibatchStochasticGradientDescentSolver(learning_rate, iterations, batch_size, momentum)
-        trainLosses, valLosses = solver.solve(train_data[0], train_data[1], val_data[0], val_data[1], model) #train the model using solver.solve
-        modelAccuracy = trainModel.accuracy(trainLosses, valLosses)
+        solver.solve(train_data, train_labels, val_data, val_labels, model) #train the model using solver.solve
+        modelAccuracy = model.accuracy(val_data, val_labels)
         val_accuracies.append((model, modelAccuracy, index))
         index +=1
-    sorted(val_accuracies, key=lambda x: x[1])
-    return val_accuracies[0][0], val_accuracies[0][2]
+    val_accuracies = sorted(val_accuracies, key=lambda x: x[1])
+    return val_accuracies[-1][0], val_accuracies[-1][2]
