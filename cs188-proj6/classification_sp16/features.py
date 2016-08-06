@@ -52,17 +52,61 @@ def enhancedFeatureExtractor(datum):
     features = basicFeatureExtractor(datum)
 
     "*** YOUR CODE HERE ***"
-    strikethroughFeature = [0, 0]
-    for row in  datum:
-        seenNumber = 0 #0 means haven't seen any black, 1 menas in continuous black, 2 means transitino from black to white
-        for elem in row:
-            if seenNumber == 2 and elem != 0:
-                strikethroughFeature[1] = 1
-                break
-            if seenNumber == 1 and elem == 0:
-                seenNumber = 2
-            if seenNumber == 0 and elem != 0:
-                seenNumber = 1
+    # strikethroughFeature = [0]
+    # longStraightLineFeature = [0]
+    # longestStraightLine = 0
+    # for row in  datum:
+    #     seenNumber = 0 #0 means haven't seen any black, 1 menas in continuous black, 2 means transitino from black to white
+    #     localStraightLine = 0
+    #     for elem in row:
+    #         if seenNumber == 2 and elem != 0:
+    #             strikethroughFeature[0] = 1
+    #             break
+    #         if seenNumber == 1 and elem == 0:
+    #             seenNumber = 2
+    #         if seenNumber == 0 and elem != 0:
+    #             seenNumber = 1
+    #         if seenNumber == 1 and elem != 0:
+    #             localStraightLine += 1
+    #     longestStraightLine = max(localStraightLine, longestStraightLine)
+    # features = np.append(features, strikethroughFeature)
+    # if longestStraightLine > 10:
+    #     longStraightLineFeature[0] = 1
+    # features = np.append(features, longStraightLineFeature)
+    numWhiteSpaces = [0, 0, 0]
+    
+    def bfsForWhiteSpace(datum, start, closed):
+        fringe = []
+        closed = set()
+        fringe.append(start)
+        while fringe != []:
+            node = fringe.pop(0)
+            closed.add(node)
+            children = []
+            if node[0] > 0 and datum[node[0]-1][node[1]][0] == 0 and (node[0]-1, node[1]) not in closed and (node[0]-1, node[1]) not in fringe:
+                children.append((node[0] - 1, node[1])) #up
+            if node[1] > 0 and datum[node[0]][node[1]-1][0] == 0 and (node[0], node[1]-1) not in closed and (node[0], node[1]-1) not in fringe:
+                children.append((node[0], node[1]-1)) #left
+            if node[0] < len(datum) - 1 and datum[node[0]+1][node[1]][0] == 0 and (node[0]+1, node[1]) not in closed and (node[0]+1, node[1]) not in fringe:
+                children.append((node[0]+1, node[1])) #down
+            if node[1] < len(datum[0]) - 1 and datum[node[0]][node[1]+1][0] == 0 and (node[0], node[1]+1) not in closed and (node[0], node[1]+1) not in fringe:
+                children.append((node[0], node[1]+1)) #right
+            fringe.extend(children)
+        return closed
+    closed = set()
+    whiteSpaceSeen = 0
+    for row in range(len(datum)):
+        for col in range(len(datum[0])):
+            if datum[row][col][0] == 0 and (row, col) not in closed:
+                closed = bfsForWhiteSpace(datum, (row, col), closed)
+                whiteSpaceSeen += 1
+    if whiteSpaceSeen == 1:
+        numWhiteSpaces[0] = 1
+    elif whiteSpaceSeen == 2:
+        numWhiteSpaces[1] = 1
+    elif whiteSpaceSeen > 2:
+        numWhiteSpaces[2] = 1
+    features = np.append(features, numWhiteSpaces)
 
     return features
 
