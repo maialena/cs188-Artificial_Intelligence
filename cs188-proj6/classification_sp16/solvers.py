@@ -180,12 +180,15 @@ class GradientDescentSolver(Solver):
         updates = self.get_updates(loss_tensor, model.get_param_vars(trainable=True))
         update_ops = [tf.assign(old_var, new_var_or_tensor) for (old_var, new_var_or_tensor) in updates]
         train_losses = []
-        val_losses = []
-        for iter_ in range(self.iterations):
-            "*** YOUR CODE HERE ***"
-            util.raiseNotDefined()
+        val_losses = [] 
+    
+        for iter_ in range(self.iterations):     
+            "*** YOUR CODE HERE ***" 
             # train_loss should be the loss of this iteration using all of the training data
             # val_loss should be the loss of this iteration using all of the validation data
+            train_loss = session.run([loss_tensor] + update_ops, feed_dict={placeholders[0]: train_data[0], placeholders[1]: train_data[1]})[0]
+            val_loss = session.run(loss_tensor, feed_dict={placeholders[0]: val_data[0], placeholders[1]: val_data[1]})  
+            
             train_losses.append(train_loss)
             val_losses.append(val_loss)
             if callback is not None: callback(model)
@@ -278,9 +281,16 @@ class StochasticGradientDescentSolver(GradientDescentSolver):
         update_ops = [tf.assign(old_var, new_var_or_tensor) for (old_var, new_var_or_tensor) in updates]
         train_losses = []
         val_losses = []
+        trainIter = MinibatchIndefinitelyGenerator(train_data, 1, self.shuffle)
+        valIter = MinibatchIndefinitelyGenerator(val_data, 1, self.shuffle)
         for iter_ in range(self.iterations):
             "*** YOUR CODE HERE ***"
-            util.raiseNotDefined()
+            trainBatch = trainIter.next()
+            train_loss = session.run([loss_tensor] + update_ops, feed_dict={placeholders[0]: trainBatch[0], placeholders[1]: trainBatch[1]})[0]
+
+            valBatch  = valIter.next()
+            val_loss = session.run(loss_tensor, feed_dict={placeholders[0]: valBatch[0], placeholders[1]: valBatch[1]}) 
+         
             # train_loss should be the loss of this iteration using only the training data that was used for the updates
             # val_loss should be the loss of this iteration using the same amount of data used for the updates, but using the validation data instead
             train_losses.append(train_loss)
@@ -367,9 +377,15 @@ class MinibatchStochasticGradientDescentSolver(GradientDescentSolver):
         update_ops = [tf.assign(old_var, new_var_or_tensor) for (old_var, new_var_or_tensor) in updates]
         train_losses = []
         val_losses = []
+        trainIter = MinibatchIndefinitelyGenerator(train_data, self.batch_size, self.shuffle)
+        valIter = MinibatchIndefinitelyGenerator(val_data, self.batch_size, self.shuffle)
         for iter_ in range(self.iterations):
             "*** YOUR CODE HERE ***"
-            util.raiseNotDefined()
+            trainBatch = trainIter.next()
+            train_loss = session.run([loss_tensor] + update_ops, feed_dict={placeholders[0]: trainBatch[0], placeholders[1]: trainBatch[1]})[0]
+
+            valBatch  = valIter.next()
+            val_loss = session.run(loss_tensor, feed_dict={placeholders[0]: valBatch[0], placeholders[1]: valBatch[1]}) 
             # train_loss should be the loss of this iteration using only the training data that was used for the updates
             # val_loss should be the loss of this iteration using the same amount of data used for the updates, but using the validation data instead
             train_losses.append(train_loss)
